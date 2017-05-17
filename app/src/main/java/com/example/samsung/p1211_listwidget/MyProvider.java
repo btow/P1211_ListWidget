@@ -70,8 +70,10 @@ public class MyProvider extends AppWidgetProvider {
         //Для генерации уникальных данных к каждому создаваемому виджету
         Uri data = Uri.parse(adapter.toUri(Intent.URI_INTENT_SCHEME));
         adapter.setData(data);
-
+        //Only for API 14 or more
         remoteViews.setRemoteAdapter(R.id.lvList, adapter);
+        //For API 13 or less
+//        remoteViews.setRemoteAdapter(appWidgetID, R.id.lvList, adapter);
     }
 
     private void setListClick(RemoteViews remoteViews,
