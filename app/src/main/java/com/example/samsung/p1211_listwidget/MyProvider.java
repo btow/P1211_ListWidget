@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.widget.RemoteViews;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.sql.Date;
 
 /**
  * Created by samsung on 16.05.2017.
@@ -19,7 +19,9 @@ public class MyProvider extends AppWidgetProvider {
     SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 
     @Override
-    public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+    public void onUpdate(Context context,
+                         AppWidgetManager appWidgetManager,
+                         int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
 
         for (int i : appWidgetIds) {
@@ -41,6 +43,19 @@ public class MyProvider extends AppWidgetProvider {
         appWidgetManager.updateAppWidget(appWidgetID, remoteViews);
     }
 
+    private void setUpdateTV(final RemoteViews remoteViews,
+                             final Context context,
+                             final int appWidgetID) {
+        remoteViews.setTextViewText(R.id.tvUpdate,
+                sdf.format(new Date(System.currentTimeMillis())));
+        Intent updIntent = new Intent(context, MyProvider.class);
+        updIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        updIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, new int[] {appWidgetID});
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context, appWidgetID, updIntent, 0);
+        remoteViews.setOnClickPendingIntent(R.id.tvUpdate, pendingIntent);
+    }
+
     private void setList(final RemoteViews remoteViews,
                          final Context context,
                          final int appWidgetID) {
@@ -52,17 +67,5 @@ public class MyProvider extends AppWidgetProvider {
     private void setListClick(final RemoteViews remoteViews,
                               final Context context,
                               final int appWidgetID) {
-    }
-
-    private void setUpdateTV(final RemoteViews remoteViews,
-                             final Context context,
-                             final int appWidgetID) {
-        remoteViews.setTextViewText(R.id.tvUpdate, sdf.format(new Date(System.currentTimeMillis())));
-        Intent updIntent = new Intent(context, MyProvider.class);
-        updIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-        updIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, new int[] {appWidgetID});
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context, appWidgetID, updIntent, 0);
-        remoteViews.setOnClickPendingIntent(R.id.tvUpdate, pendingIntent);
     }
 }
