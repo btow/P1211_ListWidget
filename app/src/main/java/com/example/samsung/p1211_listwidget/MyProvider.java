@@ -49,7 +49,7 @@ public class MyProvider extends AppWidgetProvider {
         appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetID, R.id.lvList);
     }
 
-    private void setUpdateTV(final RemoteViews remoteViews,
+    private void setUpdateTV(RemoteViews remoteViews,
                              final Context context,
                              final int appWidgetID) {
         remoteViews.setTextViewText(R.id.tvUpdate,
@@ -62,7 +62,7 @@ public class MyProvider extends AppWidgetProvider {
         remoteViews.setOnClickPendingIntent(R.id.tvUpdate, pendingIntent);
     }
 
-    private void setList(final RemoteViews remoteViews,
+    private void setList(RemoteViews remoteViews,
                          final Context context,
                          final int appWidgetID) {
         Intent adapter = new Intent(context, MyService.class);
@@ -74,6 +74,7 @@ public class MyProvider extends AppWidgetProvider {
         remoteViews.setRemoteAdapter(R.id.lvList, adapter);
         //For API 13 or less
 //        remoteViews.setRemoteAdapter(appWidgetID, R.id.lvList, adapter);
+        remoteViews.setEmptyView(R.id.lvList, R.id.tvEmpty);
     }
 
     private void setListClick(RemoteViews remoteViews,
