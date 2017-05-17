@@ -55,6 +55,12 @@ public class MyFactory implements RemoteViewsFactory {
                 this.context.getPackageName(),
                 R.layout.item);
         remoteViews.setTextViewText(R.id.tvItemText, this.data.get(position));
+        //Подключение обработчика нажатия пункта списка
+        Intent clickIntent = new Intent();
+        clickIntent.putExtra(MyProvider.ITEM_POSITION, position);
+        clickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetID);
+        remoteViews.setOnClickFillInIntent(R.id.tvItemText, clickIntent);
+
         return remoteViews;
     }
 

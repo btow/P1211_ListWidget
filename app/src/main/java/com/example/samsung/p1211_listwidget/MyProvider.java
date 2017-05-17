@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.sql.Date;
@@ -17,7 +18,9 @@ import java.sql.Date;
 
 public class MyProvider extends AppWidgetProvider {
 
-    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+    private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+    private final String ACTION_ON_CLICK = "com.example.samsung.p1211_listwidget.itemonclick";
+    final static String ITEM_POSITION = "item_position";
 
     @Override
     public void onUpdate(Context context,
@@ -71,8 +74,32 @@ public class MyProvider extends AppWidgetProvider {
         remoteViews.setRemoteAdapter(R.id.lvList, adapter);
     }
 
-    private void setListClick(final RemoteViews remoteViews,
+    private void setListClick(RemoteViews remoteViews,
                               final Context context,
                               final int appWidgetID) {
+        Intent listClickIntent = new Intent(context, MyProvider.class);
+        listClickIntent.setAction(ACTION_ON_CLICK);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context, 0, listClickIntent, 0);
+        remoteViews.setPendingIntentTemplate(R.id.lvList, pendingIntent);
+    }
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        super.onReceive(context, intent);
+
+        if (intent.getAction().equalsIgnoreCase(ACTION_ON_CLICK)) {
+            int itemPos = intent.getIntExtra(ITEM_POSITION, -1);
+            String message1 = "Clicked on item ",
+                   message2 = " of widget "
+                           + intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+                                                AppWidgetManager.INVALID_APPWIDGET_ID);
+
+            if (itemPos != -1) {
+                Toast.makeText(context,
+                        message1 + itemPos + message2,
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }
