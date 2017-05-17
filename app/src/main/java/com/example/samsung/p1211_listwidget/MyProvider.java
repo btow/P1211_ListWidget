@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.widget.RemoteViews;
 
 import java.text.SimpleDateFormat;
@@ -41,6 +42,8 @@ public class MyProvider extends AppWidgetProvider {
         setListClick(remoteViews, context, appWidgetID);
 
         appWidgetManager.updateAppWidget(appWidgetID, remoteViews);
+        //Обновление списка виджета
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetID, R.id.lvList);
     }
 
     private void setUpdateTV(final RemoteViews remoteViews,
@@ -61,6 +64,10 @@ public class MyProvider extends AppWidgetProvider {
                          final int appWidgetID) {
         Intent adapter = new Intent(context, MyService.class);
         adapter.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetID);
+        //Для генерации уникальных данных к каждому создаваемому виджету
+        Uri data = Uri.parse(adapter.toUri(Intent.URI_INTENT_SCHEME));
+        adapter.setData(data);
+
         remoteViews.setRemoteAdapter(R.id.lvList, adapter);
     }
 
