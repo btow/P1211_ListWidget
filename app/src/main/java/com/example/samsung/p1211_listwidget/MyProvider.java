@@ -1,8 +1,10 @@
 package com.example.samsung.p1211_listwidget;
 
+import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -21,7 +23,34 @@ public class MyProvider extends AppWidgetProvider {
     private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
     private final String ACTION_ON_CLICK = "com.example.samsung.p1211_listwidget.itemonclick";
     final static String ITEM_POSITION = "item_position";
+    //Для обхода получасового ограничения частоты обновлений
+    private final String UPDATE_ALL_WIDGETS = "update_all_widgets";
 
+    @Override
+    public void onEnabled(Context context) {
+        super.onEnabled(context);
+        Intent enableIntent = new Intent(context, MyProvider.class);
+        enableIntent.setAction(UPDATE_ALL_WIDGETS);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context, 0, enableIntent, 0);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setRepeating(AlarmManager.RTC,
+                System.currentTimeMillis(),
+                5000, pendingIntent);
+    }
+
+    @Override
+    public void onDisabled(Context context) {
+        super.onDisabled(context);
+        Intent disabledIntent = new Intent(context, MyProvider.class);
+        disabledIntent.setAction(UPDATE_ALL_WIDGETS);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context, 0, disabledIntent, 0);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(pendingIntent);
+    }
+
+    //Standard functional
     @Override
     public void onUpdate(Context context,
                          AppWidgetManager appWidgetManager,
@@ -91,17 +120,29 @@ public class MyProvider extends AppWidgetProvider {
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
 
-        if (intent.getAction().equalsIgnoreCase(ACTION_ON_CLICK)) {
+        String action = intent.getAction();
+
+        if (action.equalsIgnoreCase(ACTION_ON_CLICK)) {
             int itemPos = intent.getIntExtra(ITEM_POSITION, -1);
             String message1 = "Clicked on item ",
                    message2 = " of widget "
                            + intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
                                                 AppWidgetManager.INVALID_APPWIDGET_ID);
-
             if (itemPos != -1) {
                 Toast.makeText(context,
                         message1 + itemPos + message2,
                         Toast.LENGTH_SHORT).show();
+            }
+        }
+        //Для обхода получасового ограничения частоты обновлений
+        if (action.equalsIgnoreCase(UPDATE_ALL_WIDGETS)) {
+            ComponentName thisAppWidget = new ComponentName(
+                    context.getPackageName(),
+                    getClass().getName());
+            AppWidgetManager manager = AppWidgetManager.getInstance(context);
+
+            for (int appWidgetID : manager.getAppWidgetIds(thisAppWidget)) {
+                updateWidget(context, manager, appWidgetID);
             }
         }
     }
